@@ -80,10 +80,11 @@ app.post('/save', multer.single('file'), (req, res, next) => {
     const publicUrl = format(
       `https://storage.googleapis.com/contenedor-archivos-clientes/${req.file.originalname}`
     );
-    res.status(200).send(publicUrl);
+    res.status(200).send(JSON.stringify(publicUrl));
   });
 
   blobStream.end(req.file.buffer);
+  return;
   
 });
 
@@ -122,7 +123,7 @@ async function main(email) {
   });
   // send mail with defined transport object
   let info = await transporter.sendMail({
-      from: 'aviso@lodigital.cl', // sender address
+      from: 'lodigital@lodigital.cl', // sender address
       to: email.to, // list of receivers
       subject: email.subject, // Subject line
       text: email.content, // plain text body
