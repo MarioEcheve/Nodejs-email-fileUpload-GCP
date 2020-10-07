@@ -91,9 +91,35 @@ app.post('/save', multer.single('file'), (req, res, next) => {
 
 // delete bucket 
 app.post('/delete', (req, res, next) => {
-  console.log(req);
+  console.log(req.body);
+  deleteObjectGCP('contenedor-archivos-clientes', req.body.name);
+
 });
 
+function deleteObjectGCP(bucketName, filename) {
+  // [START storage_delete_file]
+  /**
+   * TODO(developer): Uncomment the following lines before running the sample.
+   */
+  // const bucketName = 'Name of a bucket, e.g. my-bucket';
+  // const filename = 'File to delete, e.g. file.txt';
+
+  // Imports the Google Cloud client library
+  const {Storage} = require('@google-cloud/storage');
+
+  // Creates a client
+  const storage = new Storage();
+
+  async function deleteFile() {
+    // Deletes the file from the bucket
+    await storage.bucket(bucketName).file(filename).delete();
+
+    console.log(`gs://${bucketName}/${filename} deleted.`);
+  }
+
+  deleteFile().catch(console.error);
+  // [END storage_delete_file]
+}
 //--------------------------------------------------------------------------------------------------------------------------------------
 // implementacion mailer
 app.post('/email', function(request, response){
@@ -123,7 +149,7 @@ async function main(email) {
   });
   // send mail with defined transport object
   let info = await transporter.sendMail({
-      from: 'lodigital@lodigital.cl', // sender address
+      from: 'aviso@lodigital.cl', // sender address
       to: email.to, // list of receivers
       subject: email.subject, // Subject line
       text: email.content, // plain text body
