@@ -1,16 +1,3 @@
-// Copyright 2016 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 'use strict';
 
@@ -22,14 +9,9 @@ const express = require('express');
 const Multer = require('multer');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
+var fs = require('fs');
 var cors = require('cors');
 
-
-// By default, the client will authenticate using the service account file
-// specified by the GOOGLE_APPLICATION_CREDENTIALS environment variable and use
-// the project specified by the GOOGLE_CLOUD_PROJECT environment variable. See
-// https://github.com/GoogleCloudPlatform/google-cloud-node/blob/master/docs/authentication.md
-// These environment variables are set automatically on Google App Engine
 const {Storage} = require('@google-cloud/storage');
 
 // Instantiate a storage client
@@ -96,6 +78,12 @@ app.post('/delete', (req, res, next) => {
 
 });
 
+// delete bucket 
+app.post('/download', (req, res, next) => {
+  console.log(req.body);
+  dowloadGCP('contenedor-archivos-clientes', req.body.name);
+});
+
 function deleteObjectGCP(bucketName, filename) {
   // [START storage_delete_file]
   /**
@@ -120,12 +108,66 @@ function deleteObjectGCP(bucketName, filename) {
   deleteFile().catch(console.error);
   // [END storage_delete_file]
 }
+
+const path = require('path');
+const cwd = path.join(__dirname, '..');
+
+function dowloadGCP(
+  bucketName = 'contenedor-archivos-clientes',
+  srcFilename,
+  destFilename = path.join(cwd, srcFilename)
+) {
+
+  // Imports the Google Cloud client library
+  const {Storage} = require('@google-cloud/storage');
+
+  // Creates a client
+  const storage = new Storage();
+
+  async function downloadFile() {
+    const options = {
+      // The path to which the file should be downloaded, e.g. "./file.txt"
+      destination: destFilename,
+    };
+
+    // Downloads the file
+   await storage.bucket(bucketName).file(srcFilename).download(options)
+
+
+    console.log(
+      `gs://${bucketName}/${srcFilename} downloaded to ${destFilename}.`
+    );
+  }
+  downloadFile();
+}
+
 //--------------------------------------------------------------------------------------------------------------------------------------
 // implementacion mailer
 app.post('/email', function(request, response){
   console.log(request.body);
   main(request.body);
   return response.send(JSON.stringify("ok", null, 4));
+});
+// implementacion de html to pdf
+app.post('/htmlToPdf', async function(request ,response){
+  await new Promise((resolve)=>{
+    const pdf = require('html-pdf');
+     pdf.create(request.body.body).toFile('./html-pdf.pdf', function(err, res) {
+      if (err){
+      } else {
+        resolve(res)
+      }
+  });
+  }).then(()=>{
+    new Promise((resolve)=>{
+      fs.readFile('./html-pdf.pdf', 'base64', function(err ,data) {
+        if (err) throw err;
+        resolve(data);
+      });
+    }).then((file)=>{
+      return response.send(JSON.stringify(file, null, 4));
+    });
+  });
 });
 
 // async..await is not allowed in global scope, must use a wrapper
@@ -156,13 +198,6 @@ async function main(email) {
       //html: '<b>Hello world?</b>' // html body,
       attachments : email.attachments
   });
-
-  console.log('Message sent: %s', info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-
-  // Preview only available when sending through an Ethereal account
-  console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-  // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
 }
 
 // [END gae_storage_app]
