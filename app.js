@@ -151,6 +151,7 @@ app.post('/email', function(request, response){
 // implementacion de html to pdf
 app.post('/htmlToPdf', async function(request ,response){
   await new Promise((resolve)=>{
+    //var options = { format: 'Letter' };
     const pdf = require('html-pdf');
      pdf.create(request.body.body).toFile('./html-pdf.pdf', function(err, res) {
       if (err){
