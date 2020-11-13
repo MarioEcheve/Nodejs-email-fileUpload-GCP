@@ -32,7 +32,7 @@ const multer = Multer({
 });
 
 // A bucket is a container for objects (files).
-const bucket = storage.bucket('contenedor-archivos-clientes');
+const bucket = storage.bucket('contenedor-archivos-clientes-lo-digital');
 
 // Display a form for uploading files.
 app.get('/', (req, res) => {
@@ -60,7 +60,7 @@ app.post('/save', multer.single('file'), (req, res, next) => {
   blobStream.on('finish', () => {
     // The public URL can be used to directly access the file via HTTP.
     const publicUrl = format(
-      `https://storage.googleapis.com/contenedor-archivos-clientes/${req.file.originalname}`
+      `https://storage.googleapis.com/contenedor-archivos-clientes-lo-digital/${req.file.originalname}`
     );
     res.status(200).send(JSON.stringify(publicUrl));
   });
@@ -74,14 +74,14 @@ app.post('/save', multer.single('file'), (req, res, next) => {
 // delete bucket 
 app.post('/delete', (req, res, next) => {
   console.log(req.body);
-  deleteObjectGCP('contenedor-archivos-clientes', req.body.name);
+  deleteObjectGCP('contenedor-archivos-clientes-lo-digital', req.body.name);
 
 });
 
 // delete bucket 
 app.post('/download', (req, res, next) => {
   console.log(req.body);
-  dowloadGCP('contenedor-archivos-clientes', req.body.name);
+  dowloadGCP('contenedor-archivos-clientes-lo-digital', req.body.name);
 });
 
 function deleteObjectGCP(bucketName, filename) {
@@ -151,9 +151,9 @@ app.post('/email', function(request, response){
 // implementacion de html to pdf
 app.post('/htmlToPdf', async function(request ,response){
   await new Promise((resolve)=>{
-    //var options = { format: 'Letter' };
+    var options = { format: 'Letter' };
     const pdf = require('html-pdf');
-     pdf.create(request.body.body).toFile('./html-pdf.pdf', function(err, res) {
+     pdf.create(request.body.body, options).toFile('./html-pdf.pdf', function(err, res) {
       if (err){
       } else {
         resolve(res)
