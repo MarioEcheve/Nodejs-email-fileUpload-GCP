@@ -113,7 +113,7 @@ const path = require('path');
 const cwd = path.join(__dirname, '..');
 
 function dowloadGCP(
-  bucketName = 'contenedor-archivos-clientes',
+  bucketName = 'contenedor-archivos-clientes-lo-digital',
   srcFilename,
   destFilename = path.join(cwd, srcFilename)
 ) {
