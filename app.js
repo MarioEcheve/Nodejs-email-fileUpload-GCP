@@ -150,22 +150,9 @@ app.post('/email', function(request, response){
 });
 // implementacion de html to pdf
 app.post('/htmlToPdf', async function(request ,response){
-  await new Promise((resolve)=>{
-    var options = { 
-      //"format": 'landscape' , 
-      paginationOffset: 1,       // Override the initial pagination number
-         
-          "footer": {
-            "height": "28mm",
-            "contents": {
-              first: '1 - Pagina 1 LO Digital',
-              2: '2', // Any page number is working. 1-based index
-              default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>', // fallback value
-              last: 'Last Page'
-            }
-    },};
+  await new Promise((resolve)=>{    
     const pdf = require('html-pdf');
-     pdf.create(request.body.body, options).toFile('./html-pdf.pdf', function(err, res) {
+     pdf.create(request.body.body,).toFile('./html-pdf.pdf', function(err, res) {
       if (err){
       } else {
         resolve(res)
