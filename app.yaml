@@ -3,7 +3,7 @@ runtime: nodejs12 # or nodejs10
 instance_class: F2
 
 env_variables:
-  BUCKET_NAME: "example-gcs-bucket"
+  BUCKET_NAME: "contenedor-archivos-clientes-lo-digital"
 
 handlers:
 - url: /stylesheets
