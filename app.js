@@ -149,10 +149,26 @@ app.post('/email', function(request, response){
   return response.send(JSON.stringify("ok", null, 4));
 });
 // implementacion de html to pdf
-app.post('/htmlToPdf', async function(request ,response){
-  await new Promise((resolve)=>{    
+app.post('/htmlToPdf', async function(request ,response){  
+  await new Promise((resolve)=>{
+    let config = {           
+      "format": "Letter",        // allowed units: A3, A4, A5, Legal, Letter, Tabloid     
+      paginationOffset: 1,       // Override the initial pagination number
+      "header": {
+        "height": "25mm",        
+      },
+      "footer": {
+        "height": "28mm",
+        "contents": {
+          first: 'Cover page',
+          2: 'Second page', // Any page number is working. 1-based index
+          default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>', // fallback value
+          last: 'Last Page'
+        }
+      },
+    }
     const pdf = require('html-pdf');
-     pdf.create(request.body.body,).toFile('./html-pdf.pdf', function(err, res) {
+     pdf.create(request.body.body,config).toFile('./html-pdf.pdf', function(err, res) {
       if (err){
       } else {
         resolve(res)
