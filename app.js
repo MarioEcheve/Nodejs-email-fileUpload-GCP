@@ -155,10 +155,10 @@ app.post('/htmlToPdf', async function(request ,response){
       "format": "Letter",        // allowed units: A3, A4, A5, Legal, Letter, Tabloid     
       paginationOffset: 1,       // Override the initial pagination number
       "header": {
-        "height": "20mm",        
+        "height": "27mm",        
       },
       "footer": {
-        "height": "20mm",        
+        "height": "25mm",        
       },
     }
     const pdf = require('html-pdf');
